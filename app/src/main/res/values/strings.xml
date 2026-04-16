@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">TurnRelay</string>
+    <string name="button_enable">Enable</string>
+    <string name="button_disable">Disable</string>
+    <string name="server_ip_address">Server IP address</string>
+    <string name="server_port">Server port</string>
+    <string name="turn_server_address">TURN server address</string>
+    <string name="turn_server_port">TURN server port</string>
+    <string name="turn_username">TURN username</string>
+    <string name="turn_password">TURN password</string>
 </resources>

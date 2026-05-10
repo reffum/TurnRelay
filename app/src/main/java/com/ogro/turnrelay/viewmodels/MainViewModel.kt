@@ -20,6 +20,7 @@ import androidx.lifecycle.AndroidViewModel
 import com.ogro.turnrelay.TurnRelayApplication
 import com.ogro.turnrelay.data.StatusLog
 import com.ogro.turnrelay.services.TurnVpnService
+import com.ogro.turnrelay.util.portIsValid
 
 class StartVpnServerError(errorMessage: String): RuntimeException(errorMessage)
 
@@ -154,6 +155,22 @@ class MainViewModel(application: Application): AndroidViewModel(application) {
     }
 
     private fun checkConfig(): Boolean {
+        if(serverAddress.isEmpty()) {
+            return false
+        }
+
+        if(turnAddress.isEmpty()) {
+            return false
+        }
+
+        if(turnUsername.isEmpty() || turnPass.isEmpty()) {
+            return false
+        }
+
+        if(!portIsValid(serverPort) || !portIsValid(turnPort)) {
+            return false
+        }
+
         return true
     }
 

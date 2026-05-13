@@ -231,7 +231,7 @@ impl Tunnel {
 
         self.state = TunnelState::Idle;
 
-        error!("Starting Tunnel worker.");
+        info!("Starting Tunnel worker.");
 
         let remote_server = self.remote_server.clone();
         let remote_port = self.remote_port;
@@ -260,7 +260,7 @@ impl Tunnel {
 
         self.thread_handle = Some(handle);
 
-        error!("Tunnel worker started successfully.");
+        info!("Tunnel worker started successfully.");
 
         Ok(())
     }

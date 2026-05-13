@@ -99,26 +99,32 @@ class MainViewModel(application: Application): AndroidViewModel(application) {
 
     fun serverAddressChanged(it: String) {
         serverAddress = it
+        preferenceRepository.saveServerAddress(it)
     }
 
     fun serverPortChanged(port: Int) {
         serverPort = port
+        preferenceRepository.saveServerPort(port)
     }
 
     fun turnAddressChanged(address: String) {
         turnAddress = address
+        preferenceRepository.saveTurnAddress(address)
     }
 
     fun turnPortChanged(port: Int) {
         turnPort = port
+        preferenceRepository.saveTurnPort(port)
     }
 
     fun turnUserChanged(username: String) {
         turnUsername = username
+        preferenceRepository.saveTurnUsername(username)
     }
 
     fun turnPassChanged(pass: String) {
         turnPass = pass
+        preferenceRepository.saveTurnPassword(pass)
     }
 
     fun startService() {

@@ -27,6 +27,8 @@ object TunnelProcess {
     private val _connectionState = MutableStateFlow(ConnectionState.DISCONNECT)
     val connectionState = _connectionState.asStateFlow()
 
+    private var tunnelPtr: Long = 0
+
     init {
         System.loadLibrary(LIBRARY_NAME)
     }

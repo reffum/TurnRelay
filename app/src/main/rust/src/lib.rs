@@ -54,7 +54,7 @@ pub extern "system" fn JNI_OnLoad(
 }
 
 
-#[jni_mangle("com.ogro.turnrelay.TunnelProcess")]
+#[jni_mangle("com.ogro.turnrelay.net.TunnelProcess")]
 pub extern "system" fn start<'caller>(
     mut unowned_env: EnvUnowned<'caller>,
     class: JObject<'caller>,
@@ -121,7 +121,7 @@ pub extern "system" fn start<'caller>(
 }
 
 
-#[jni_mangle("com.ogro.turnrelay.TunnelProcess")]
+#[jni_mangle("com.ogro.turnrelay.net.TunnelProcess")]
 pub extern "system" fn stop<'caller>(
     mut unowned_env: EnvUnowned<'caller>,
     class: JObject<'caller>,

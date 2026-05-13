@@ -88,10 +88,14 @@ impl Tunnel {
             .next()
             .expect("remote server address not resolved");
 
+        debug!("tunnel_work_func()");
+
         let turn_server_addr_str = format!("{}:{}", turn_server, turn_port);
 
         // The TURN client can't create a local UDP socket by itself
-        let turn_udp_conn = UdpSocket::bind("0.0.0.0:0").await?;
+        let turn_udp_conn = UdpSocket::bind("0.0.0.0:0").await.expect("Failed to bind UDP socket");
+
+        debug!("bound to 0.0.0.0:0 completely");
 
         // Create the TURN client
         let turn_config = ClientConfig {
@@ -135,13 +139,23 @@ impl Tunnel {
 
         set_nonblocking(tun_fd)
             .expect("Failed to set TUN fd to non-blocking");
+        debug!("TUN fd set to non-blocking");
 
         let tun_async_fd = AsyncFd::new(tun_fd.as_fd())
             .expect("Failed to register TUN fd with tokio");
 
+        info!("Call on_state_changed()");
+
         let result: Result<()>;
         on_state_changed(TunnelState::Connected);
 
+        debug!("Sending hello to remote server...");
+        turn_conn.send_to(
+            &mut "Hello".as_bytes(),
+            remote_server_addr
+        ).await.unwrap();
+
+        debug!("Start work loop");
         loop {
             tokio::select! {
                 // Handle TUN read. Read from TUN and send to the remote server via TURN
@@ -245,7 +259,7 @@ impl Tunnel {
 
         let handle = spawn(move || {
             let rt = tokio::runtime::Runtime::new().unwrap();
-           rt.block_on(Tunnel::tunnel_work_func(
+            rt.block_on(Tunnel::tunnel_work_func(
                 remote_server,
                 remote_port,
                 turn_server,

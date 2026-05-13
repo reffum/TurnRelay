@@ -5,7 +5,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.net.VpnService
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
@@ -136,7 +135,7 @@ class MainViewModel(application: Application): AndroidViewModel(application) {
 
         Log.i(TAG, "Start the vpn service")
 
-        val intent = Intent(context, VpnService::class.java).apply {
+        val intent = Intent(context, TurnVpnService::class.java).apply {
             putExtra("SERVER_ADDR", serverAddress)
             putExtra("SERVER_PORT", serverPort)
             putExtra("TURN_ADDRESS", turnAddress)

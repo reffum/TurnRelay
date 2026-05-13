@@ -147,6 +147,7 @@ class MainViewModel(application: Application): AndroidViewModel(application) {
 
         context.startService(intent)
         bindService()
+        serviceEnabled = true
     }
 
     fun stopService() {
@@ -154,6 +155,8 @@ class MainViewModel(application: Application): AndroidViewModel(application) {
         val intent = Intent(applicationContext, TurnVpnService::class.java)
         applicationContext.stopService(intent)
         unbindService()
+
+        serviceEnabled = false
     }
 
     override fun onCleared() {

@@ -19,7 +19,7 @@ object TunnelProcess {
         ERROR
     }
 
-    const val LIBRARY_NAME = "tunproc"
+    const val LIBRARY_NAME = "turn_tunnel_lib"
 
     class StartError(message: String): RuntimeException(message)
 

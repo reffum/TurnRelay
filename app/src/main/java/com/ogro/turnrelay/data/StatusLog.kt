@@ -11,6 +11,6 @@ object StatusLog {
     val logLines = _logLines.asStateFlow()
 
     fun Log(message: String) {
-        _logLines.value += message + "\n"
+        _logLines.value += message
     }
 }

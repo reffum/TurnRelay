@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ogro.turnrelay.R
+import com.ogro.turnrelay.net.TunnelProcess
 import com.ogro.turnrelay.viewmodels.MainViewModel
 import com.ogro.turnrelay.viewmodels.StartVpnServerError
 
@@ -75,6 +76,13 @@ fun ControlScreen(
     val buttonLabelText = if(buttonEnabled) labelDisable else labelEnable
 
     val logLines by viewModel.logLines.collectAsStateWithLifecycle()
+    val connectionState by viewModel.connectionState.collectAsStateWithLifecycle()
+
+    val connectionStateLabel = when(connectionState) {
+        TunnelProcess.ConnectionState.DISCONNECT -> stringResource(id = R.string.disconnected)
+        TunnelProcess.ConnectionState.CONNECTED -> stringResource(id = R.string.connected)
+        TunnelProcess.ConnectionState.ERROR -> stringResource(id = R.string.error)
+    }
 
     val vpnServicePrepareLauncher =
         rememberLauncherForActivityResult(
@@ -85,6 +93,7 @@ fun ControlScreen(
         modifier = modifier,
         buttonLabelText = buttonLabelText,
         logLines = logLines,
+        connectionStateLabel = connectionStateLabel,
         buttonOnClick = {
             toggleService(
                 context,
@@ -114,6 +123,7 @@ fun ControlScreenContent(
     modifier: Modifier = Modifier,
     buttonLabelText: String,
     logLines: List<String>,
+    connectionStateLabel: String,
 
     buttonOnClick: () -> Unit,
 ) {
@@ -135,6 +145,15 @@ fun ControlScreenContent(
                 )
             }
         }
+        HorizontalDivider(
+            modifier = Modifier.padding(vertical = 8.dp),
+            thickness = 1.dp,
+            color = MaterialTheme.colorScheme.inversePrimary
+        )
+        Text(
+            text = connectionStateLabel,
+            style = MaterialTheme.typography.displaySmall,
+        )
 
         HorizontalDivider(
             modifier = Modifier.padding(vertical = 8.dp),
@@ -158,6 +177,7 @@ fun ControlScreenPreview() {
         modifier = Modifier,
         buttonLabelText = "Enable",
         logLines = listOf("INFO: App started", "DEBUG: UI initialized", "ERROR: Network failed"),
+        connectionStateLabel = "Connected",
         buttonOnClick = {}
     )
 }

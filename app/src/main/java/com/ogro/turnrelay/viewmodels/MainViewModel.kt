@@ -18,6 +18,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import com.ogro.turnrelay.TurnRelayApplication
 import com.ogro.turnrelay.data.StatusLog
+import com.ogro.turnrelay.net.TunnelProcess
 import com.ogro.turnrelay.services.TurnVpnService
 import com.ogro.turnrelay.util.portIsValid
 
@@ -53,6 +54,7 @@ class MainViewModel(application: Application): AndroidViewModel(application) {
         private set
 
     val logLines = StatusLog.logLines
+    val connectionState = TunnelProcess.connectionState
 
     private var serviceMessenger: Messenger? = null
     private var serviceIsBound = false

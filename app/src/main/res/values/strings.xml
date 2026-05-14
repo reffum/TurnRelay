@@ -8,4 +8,7 @@
     <string name="turn_server_port">TURN server port</string>
     <string name="turn_username">TURN username</string>
     <string name="turn_password">TURN password</string>
+    <string name="disconnected">DISCONNECTED</string>
+    <string name="connected">CONNECTED</string>
+    <string name="error">ERROR</string>
 </resources>

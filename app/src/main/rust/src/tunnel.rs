@@ -239,6 +239,7 @@ impl Tunnel {
      * It runs the tunnel server in a separate thread.
      */
     pub fn start(&mut self) -> Result<()> {
+
         if self.thread_handle.is_some() {
             return Err(Error::new(ErrorKind::AlreadyExists, "Server thread already exists"));
         }
@@ -256,6 +257,8 @@ impl Tunnel {
         let tun_fd = self.tun_fd;
         let cancellation_token = self.cancellation_token.clone();
         let on_state_changed = self.on_state_changed;
+
+        on_state_changed(TunnelState::Idle);
 
         let handle = spawn(move || {
             let rt = tokio::runtime::Runtime::new().unwrap();

@@ -144,6 +144,7 @@ class MainViewModel(application: Application): AndroidViewModel(application) {
             putExtra("TURN_PORT", turnPort)
             putExtra("TURN_USER", turnUsername)
             putExtra("TURN_PASS", turnPass)
+            setAction(TurnVpnService.ACTION_START)
         }
 
         context.startService(intent)
@@ -153,10 +154,12 @@ class MainViewModel(application: Application): AndroidViewModel(application) {
 
     fun stopService() {
         val applicationContext = getApplication<Application>().applicationContext
-        val intent = Intent(applicationContext, TurnVpnService::class.java)
-        applicationContext.stopService(intent)
-        unbindService()
+        val intent = Intent(applicationContext, TurnVpnService::class.java).apply {
+            setAction(TurnVpnService.ACTION_STOP)
+        }
 
+        applicationContext.startService(intent)
+        unbindService()
         serviceEnabled = false
     }
 
@@ -186,8 +189,11 @@ class MainViewModel(application: Application): AndroidViewModel(application) {
 
     private fun unbindService() {
         if(serviceIsBound) {
-            getApplication<Application>().unbindService(serviceConnection)
+            Log.i(TAG, "unbindService")
+            val context = getApplication<Application>().applicationContext
+            context.unbindService(serviceConnection)
             serviceIsBound = false
+            serviceMessenger = null
         }
     }
 }

@@ -17,6 +17,10 @@ class TurnVpnService : VpnService() {
     companion object {
         const val MESSAGE_REGISTER_CLIENT = 1
         const val MESSAGE_LOG =2
+
+        const val ACTION_START = "ACTION_START"
+        const val ACTION_STOP = "ACTION_STOP"
+
         private const val TAG = "TurnVpnService"
 
     }
@@ -39,34 +43,41 @@ class TurnVpnService : VpnService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.i(TAG, "TurnVpnService started")
 
-        val turnAddress = intent!!.getStringExtra("TURN_ADDRESS")!!
-        val turnPort = intent.getIntExtra("TURN_PORT", 0)
-        val turnUsername = intent.getStringExtra("TURN_USER")!!
-        val turnPassword = intent.getStringExtra("TURN_PASS")!!
-        val serverAddr = intent.getStringExtra("SERVER_ADDR")!!
-        val serverPort = intent.getIntExtra("SERVER_PORT", 0)
+        if(intent!!.action == ACTION_START) {
+            val turnAddress = intent!!.getStringExtra("TURN_ADDRESS")!!
+            val turnPort = intent.getIntExtra("TURN_PORT", 0)
+            val turnUsername = intent.getStringExtra("TURN_USER")!!
+            val turnPassword = intent.getStringExtra("TURN_PASS")!!
+            val serverAddr = intent.getStringExtra("SERVER_ADDR")!!
+            val serverPort = intent.getIntExtra("SERVER_PORT", 0)
 
-        // Configure the VPN
-        val builder = Builder()
-            .setSession("TurnVpnService")
-            .addAddress("10.0.8.2", 24)
-            .addRoute("10.0.8.0", 24)
+            // Configure the VPN
+            val builder = Builder()
+                .setSession("TurnVpnService")
+                .addAddress("10.0.8.2", 24)
+                .addRoute("10.0.8.0", 24)
 
-        // Establish the VPN connection
-        vpnInterface = builder.establish()
+            // Establish the VPN connection
+            vpnInterface = builder.establish()
 
-        TunnelProcess.start(
-            turnServerAddress = turnAddress,
-            turnSererPort = turnPort,
-            turnUsername = turnUsername,
-            turnPassword = turnPassword,
-            serverAddress = serverAddr,
-            serverPort = serverPort,
-            tunFd = vpnInterface!!.fd,
-        )
+            TunnelProcess.start(
+                turnServerAddress = turnAddress,
+                turnSererPort = turnPort,
+                turnUsername = turnUsername,
+                turnPassword = turnPassword,
+                serverAddress = serverAddr,
+                serverPort = serverPort,
+                tunFd = vpnInterface!!.fd,
+            )
 
-        sendMessageToClient("VPN connection established")
-        return START_REDELIVER_INTENT
+            sendMessageToClient("VPN connection established")
+            return START_REDELIVER_INTENT
+        } else {
+            Log.i(TAG, "TurnVpnService stopped")
+            closeInterface()
+            stopSelf()
+            return START_NOT_STICKY
+        }
     }
 
     override fun onBind(intent: Intent?): IBinder? {

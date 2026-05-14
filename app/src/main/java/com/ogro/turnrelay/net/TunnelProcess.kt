@@ -48,7 +48,8 @@ object TunnelProcess {
 
     external fun stop()
 
-    private fun updateState(state: ConnectionState) {
+    private fun updateState(stateId: Int) {
+        val state = ConnectionState.entries[stateId]
         Log.d(TAG, "state: $state")
         CoroutineScope(Dispatchers.Main).launch {
             _connectionState.value = state

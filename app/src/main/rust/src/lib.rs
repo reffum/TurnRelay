@@ -1,5 +1,5 @@
 use jni::errors::Error;
-use jni::objects::{JClass, JObject, JString};
+use jni::objects::{JObject, JString};
 use jni::refs::Global;
 use jni::sys::{jint, jlong, JNI_VERSION_1_6};
 use jni::{jni_sig, jni_str, EnvUnowned, JValue, JavaVM};
@@ -19,7 +19,7 @@ mod tunnel;
 pub use tunnel::{Tunnel, TunnelState};
 
 // Global reference to the TunnelProcess object
-static TUNNEL_PROCESS: OnceLock<Global<JClass>> = OnceLock::new();
+static TUNNEL_PROCESS: OnceLock<Global<JObject>> = OnceLock::new();
 
 
 fn on_state_change(state: TunnelState) {
@@ -30,7 +30,7 @@ fn on_state_change(state: TunnelState) {
 
         env.call_method(
             &g_class,
-            jni_str!("onStateChange"),
+            jni_str!("updateState"),
             jni_sig!("(I)V"),
             &[JValue::Int(state as i32)],
         ).unwrap();
@@ -95,6 +95,10 @@ pub extern "system" fn start<'caller>(
                 tun_fd,
                 on_state_change
             ));
+
+            // Store the TunnelProcess global reference
+            let g_clazz = env.new_global_ref(&class).unwrap();
+            TUNNEL_PROCESS.get_or_init(|| {g_clazz});
 
             // Start the tunnel worker thread
 

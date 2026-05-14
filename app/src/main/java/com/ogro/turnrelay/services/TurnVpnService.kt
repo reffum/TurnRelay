@@ -44,7 +44,7 @@ class TurnVpnService : VpnService() {
         Log.i(TAG, "TurnVpnService started")
 
         if(intent!!.action == ACTION_START) {
-            val turnAddress = intent!!.getStringExtra("TURN_ADDRESS")!!
+            val turnAddress = intent.getStringExtra("TURN_ADDRESS")!!
             val turnPort = intent.getIntExtra("TURN_PORT", 0)
             val turnUsername = intent.getStringExtra("TURN_USER")!!
             val turnPassword = intent.getStringExtra("TURN_PASS")!!

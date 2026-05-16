@@ -97,9 +97,12 @@ fun SettingsScreenContent(
             modifier = Modifier.fillMaxWidth(),
             value = serverPort.toString(),
             label = { Text(serverPortLabel) },
-            onValueChange = {
-                if(portIsValid(it.toInt())) {
-                    serverPortChanged(it.toInt())
+            onValueChange = { it ->
+                if(it.all{it.isDigit()}) {
+                    val value = it.toInt()
+                    if(portIsValid(value)) {
+                        serverPortChanged(value)
+                    }
                 }
             },
             keyboardOptions = KeyboardOptions(
@@ -118,10 +121,12 @@ fun SettingsScreenContent(
             modifier = Modifier.fillMaxWidth(),
             value = turnPort.toString(),
             label = { Text(turnPortLabel) },
-            onValueChange = {
-                val value = it.toInt()
-                if(portIsValid(value)) {
-                    turnPortChanged(value)
+            onValueChange = { it ->
+                if(it.all{it.isDigit()}) {
+                    val value = it.toInt()
+                    if (portIsValid(value)) {
+                        turnPortChanged(value)
+                    }
                 }
             },
             keyboardOptions = KeyboardOptions(

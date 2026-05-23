@@ -38,6 +38,26 @@ fn on_state_change(state: TunnelState) {
     }).unwrap();
 }
 
+fn protect_socket(fd: RawFd) -> bool {
+    let jvm = JavaVM::singleton().unwrap();
+
+    let value = jvm.attach_current_thread(|env| -> Result<bool, jni::errors::Error> {
+        let g_class = TUNNEL_PROCESS.get().unwrap();
+
+        let result = env.call_method(
+            &g_class,
+            jni_str!("protect"),
+            jni_sig!("(I)Z"),
+            &[JValue::Int(fd as jint)],
+        ).unwrap();
+
+        let value = result.into_bool().unwrap();
+        Ok(value)
+    }).unwrap();
+
+    value
+}
+
 #[allow(non_snake_case)]
 #[unsafe(no_mangle)]
 pub extern "system" fn JNI_OnLoad(
@@ -93,7 +113,8 @@ pub extern "system" fn start<'caller>(
                 server_address,
                 server_port,
                 tun_fd,
-                on_state_change
+                on_state_change,
+                protect_socket
             ));
 
             // Store the TunnelProcess global reference

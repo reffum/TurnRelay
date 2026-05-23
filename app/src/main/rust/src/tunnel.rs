@@ -3,7 +3,7 @@ use nix::fcntl::{fcntl, FcntlArg, OFlag};
 use nix::unistd::{read, write};
 use std::io::ErrorKind;
 use std::net::ToSocketAddrs;
-use std::os::fd::{AsFd, BorrowedFd};
+use std::os::fd::{AsFd, AsRawFd, BorrowedFd, RawFd};
 use std::sync::Arc;
 use std::thread::{spawn, JoinHandle};
 use tokio::io::unix::AsyncFd;
@@ -37,6 +37,8 @@ pub struct Tunnel {
     state: TunnelState,
 
     on_state_changed: fn(TunnelState),
+    protect_socket: fn(RawFd) -> bool,
+
     cancellation_token: CancellationToken,
 }
 
@@ -51,7 +53,8 @@ impl Tunnel {
         remote_port: u16,
 
         tun_fd: BorrowedFd<'static>,
-        on_state_changed: fn(TunnelState)
+        on_state_changed: fn(TunnelState),
+        protect_socket: fn(RawFd) -> bool,
     ) -> Self {
         Self {
             turn_server,
@@ -64,6 +67,7 @@ impl Tunnel {
             thread_handle: None,
             state: TunnelState::Idle,
             on_state_changed,
+            protect_socket,
             cancellation_token: CancellationToken::default(),
         }
     }
@@ -80,7 +84,8 @@ impl Tunnel {
         turn_pass: String,
         tun_fd: BorrowedFd<'_>,
         cancellation_token: CancellationToken,
-        on_state_changed: fn(TunnelState)
+        on_state_changed: fn(TunnelState),
+        protect_socket: fn(RawFd) -> bool,
     ) -> Result<()> {
         let remote_server_addr_str = format!("{}:{}", remote_server, remote_port);
         let remote_server_addr = remote_server_addr_str
@@ -96,6 +101,15 @@ impl Tunnel {
         let turn_udp_conn = UdpSocket::bind("0.0.0.0:0").await.expect("Failed to bind UDP socket");
 
         debug!("bound to 0.0.0.0:0 completely");
+
+        // Protect the socket. This operation is need to don't route VPN service traffic itself.
+        // See VpnService.protect()
+        let raw_fd = turn_udp_conn.as_raw_fd();
+
+        if !protect_socket(raw_fd) {
+            error!("Protect TUN socket fail");
+            return Err(Error::new(ErrorKind::Other, "Protect TUN socket fail"));
+        }
 
         // Create the TURN client
         let turn_config = ClientConfig {
@@ -257,6 +271,7 @@ impl Tunnel {
         let tun_fd = self.tun_fd;
         let cancellation_token = self.cancellation_token.clone();
         let on_state_changed = self.on_state_changed;
+        let protect_socket = self.protect_socket;
 
         on_state_changed(TunnelState::Idle);
 
@@ -271,7 +286,8 @@ impl Tunnel {
                 turn_pass,
                 tun_fd,
                 cancellation_token,
-                on_state_changed
+                on_state_changed,
+                protect_socket
             ))
         });
 

@@ -1,11 +1,13 @@
 package com.ogro.turnrelay.net
 
+import android.net.VpnService
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.lang.ref.WeakReference
 
 //
 // Allocate the TURN connection, connect to remote server.
@@ -31,8 +33,20 @@ object TunnelProcess {
 
     private var tunnelPtr: Long = 0
 
+    // VPN service. We need a reference to VpnService to protect
+    // TUN socket from route traffic.
+    private var activeVpnService: WeakReference<VpnService>? = null
+
     init {
         System.loadLibrary(LIBRARY_NAME)
+    }
+
+    fun registerService(service: VpnService) {
+        activeVpnService = WeakReference(service)
+    }
+
+    fun unregisterService() {
+        activeVpnService = null
     }
 
     // Throw StartError if start failed
@@ -54,5 +68,18 @@ object TunnelProcess {
         CoroutineScope(Dispatchers.Main).launch {
             _connectionState.value = state
         }
+    }
+
+    /**
+     * Protect the TUN socket from route traffic. It call VpnService.protect()
+     */
+    private fun protect(fd: Int): Boolean {
+        if(activeVpnService == null) {
+            Log.e(TAG, "VpnService is null")
+            return false
+        }
+
+        val service = activeVpnService?.get()
+        return service?.protect(fd) ?: false
     }
 }

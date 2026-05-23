@@ -40,6 +40,11 @@ class TurnVpnService : VpnService() {
         true
     })
 
+    override fun onCreate() {
+        super.onCreate()
+        TunnelProcess.registerService(this)
+    }
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.i(TAG, "TurnVpnService started")
 
@@ -95,6 +100,7 @@ class TurnVpnService : VpnService() {
         Log.i(TAG, "Service destroyed")
         sendMessageToClient("VPN Service turn off")
         closeInterface()
+        TunnelProcess.unregisterService()
         super.onDestroy()
     }
 

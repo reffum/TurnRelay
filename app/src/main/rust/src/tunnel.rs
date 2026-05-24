@@ -232,7 +232,7 @@ impl Tunnel {
                 }
 
                 _ = cancellation_token.cancelled() => {
-                    error!("Server thread cancelled");
+                    info!("Server thread cancelled");
                     result = Ok(());
                     break;
                 }
@@ -303,12 +303,18 @@ impl Tunnel {
             return Err(Error::new(ErrorKind::NotFound, "Tunnel thread does not exist"));
         }
 
-        error!("Stopping Tunnel worker.");
+        info!("Stopping Tunnel worker.");
 
         let handle = self.thread_handle.take().unwrap();
+
+        info!("Canceling Tunnel worker.");
+        self.cancellation_token.cancel();
+
+        info!("Joining Tunnel worker thread.");
         let result = handle.join().unwrap();
 
-        if result.is_err() {
+        if result.is_ok() {
+            info!("Thread cancelled successfully.");
             return Ok(());
         } else {
             error!("Tunnel thread exiting with error: {}.", result.unwrap_err());

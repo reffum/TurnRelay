@@ -60,7 +60,7 @@ class TurnVpnService : VpnService() {
             val builder = Builder()
                 .setSession("TurnVpnService")
                 .addAddress("10.0.8.2", 24)
-                .addRoute("10.0.8.0", 24)
+                .addRoute("0.0.0.0", 0)
 
             // Establish the VPN connection
             vpnInterface = builder.establish()

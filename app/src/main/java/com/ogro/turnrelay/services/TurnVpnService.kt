@@ -75,7 +75,7 @@ class TurnVpnService : VpnService() {
                 tunFd = vpnInterface!!.fd,
             )
 
-            sendMessageToClient("VPN connection established")
+            sendMessageToClient("VPN connection established via $turnAddress:$turnPort")
             return START_REDELIVER_INTENT
         } else {
             Log.i(TAG, "TurnVpnService stopped")

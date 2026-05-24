@@ -63,6 +63,8 @@ fun MainScreen(
         viewModel.bindService()
     }
 
+    val mainViewModel: MainViewModel = viewModel()
+
     TurnRelayTheme {
         Scaffold(
             modifier = modifier.fillMaxSize(),
@@ -72,8 +74,8 @@ fun MainScreen(
                 navController = navController,
                 startDestination = Controller,
                 modifier = Modifier.padding(innerPadding)) {
-                composable<Controller>{ ControlScreen() }
-                composable<Settings>{ SettingsScreen() }
+                composable<Controller>{ ControlScreen(viewModel = mainViewModel) }
+                composable<Settings>{ SettingsScreen(viewModel = mainViewModel) }
             }
         }
     }

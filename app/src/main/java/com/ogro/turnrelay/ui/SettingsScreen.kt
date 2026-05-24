@@ -7,6 +7,10 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -84,6 +88,8 @@ fun SettingsScreenContent(
     val turnUserLabel = stringResource(R.string.turn_username)
     val turnPassLabel = stringResource(R.string.turn_password)
 
+    var turnPortStr by remember { mutableStateOf(turnPort.toString()) }
+
     Column(modifier = modifier.fillMaxSize()) {
         TextField(
             modifier = Modifier.fillMaxWidth(),
@@ -119,14 +125,14 @@ fun SettingsScreenContent(
         )
         TextField(
             modifier = Modifier.fillMaxWidth(),
-            value = turnPort.toString(),
+            value = turnPortStr,
+            isError = !portIsValid(turnPortStr),
             label = { Text(turnPortLabel) },
-            onValueChange = { it ->
-                if(it.all{it.isDigit()}) {
-                    val value = it.toInt()
-                    if (portIsValid(value)) {
-                        turnPortChanged(value)
-                    }
+            onValueChange = {
+                turnPortStr = it
+                if(portIsValid(turnPortStr)) {
+                    val value = turnPortStr.toInt()
+                    turnPortChanged(value)
                 }
             },
             keyboardOptions = KeyboardOptions(

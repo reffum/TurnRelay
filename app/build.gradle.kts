@@ -20,6 +20,12 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        externalNativeBuild {
+            cmake {
+                cppFlags += ""
+                targets += "turnrelay"
+            }
+        }
     }
 
     buildTypes {
@@ -41,10 +47,10 @@ android {
     buildFeatures {
         compose = true
     }
-
-    sourceSets {
-        getByName("main") {
-            jniLibs.srcDirs("src/main/rust/jniLibs")
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+            version = "3.22.1"
         }
     }
 }
